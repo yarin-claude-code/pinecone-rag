@@ -9,7 +9,7 @@ export interface ChatRequest {
   history: Message[];
 }
 
-export interface PineconeMetadata {
+export interface PineconeMetadata extends Record<string, string> {
   text: string;
   source: string;
 }

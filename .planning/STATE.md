@@ -1,7 +1,7 @@
 # Project State — Pinecone RAG Chat
 
 ## Current Phase
-Phase 1 — Complete. Ready for Phase 2.
+Phase 2 — Complete. Ready for Phase 3.
 
 ## Completed
 - [x] Project idea captured (PROJECT.md)
@@ -9,12 +9,16 @@ Phase 1 — Complete. Ready for Phase 2.
 - [x] Requirements defined (REQUIREMENTS.md)
 - [x] Roadmap created (ROADMAP.md) — 4 phases
 - [x] CLAUDE.md created
+- [x] Phase 1: Project scaffolding — Next.js 14, Tailwind dark theme, chat layout skeleton
+- [x] Phase 2: Backend RAG API route — openai/pinecone/anthropic lib helpers + /api/chat streaming endpoint
 
 ## Decisions
 - Node.js runtime (not Edge) — needed for Pinecone SDK
 - `messages.stream()` high-level API for Anthropic streaming
 - ReadableStream in Route Handler for SSE
 - Standard Pinecone indexes with external OpenAI embeddings
+- Raw text streaming (not SSE JSON format) — Claude chunks sent directly to client
+- PineconeMetadata extends Record<string, string> to satisfy Pinecone SDK RecordMetadata constraint
 
 ## Blockers
 None.
