@@ -1,0 +1,12 @@
+{
+  "project": "pinecone-rag",
+  "created": "2026-03-11",
+  "workflow": {
+    "research": true,
+    "verification": true,
+    "git_strategy": "atomic_per_phase"
+  },
+  "ui": {
+    "style": "minimal-dark"
+  }
+}
