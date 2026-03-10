@@ -41,7 +41,7 @@ export default function ChatInput({ onSend, disabled }: ChatInputProps) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="flex gap-2">
+    <form onSubmit={handleSubmit} className="flex items-end gap-2">
       <textarea
         ref={textareaRef}
         rows={1}
@@ -54,14 +54,17 @@ export default function ChatInput({ onSend, disabled }: ChatInputProps) {
         placeholder="Type your message..."
         disabled={disabled}
         style={{ height: "40px" }}
-        className="flex-1 min-w-0 bg-[#171717] border border-[#2a2a2a] rounded-lg px-3 sm:px-4 py-2.5 text-[#e5e5e5] placeholder-[#525252] text-sm outline-none focus:ring-2 focus:ring-[#D4AF37] transition-colors duration-150 disabled:opacity-50 resize-none overflow-y-auto"
+        className="flex-1 min-w-0 bg-[#171717] border border-[#2a2a2a] rounded-lg px-3 sm:px-4 py-2.5 text-[#e5e5e5] placeholder-[#525252] text-sm outline-none focus:ring-2 focus:ring-[#D4AF37] transition-colors duration-150 disabled:opacity-50 resize-none overflow-hidden"
       />
       <button
         type="submit"
         disabled={disabled || !input.trim()}
-        className="bg-[#D4AF37] hover:bg-[#c4a030] text-[#0a0a0a] font-medium px-4 sm:px-5 py-2.5 rounded-lg text-sm cursor-pointer transition-colors duration-150 disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
+        className="w-9 h-9 flex items-center justify-center rounded-full bg-[#D4AF37] hover:bg-[#c4a030] text-[#0a0a0a] cursor-pointer transition-colors duration-150 disabled:opacity-30 disabled:cursor-not-allowed shrink-0"
+        aria-label="Send message"
       >
-        Send
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M8 14V2M8 2L3 7M8 2L13 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
       </button>
     </form>
   );
