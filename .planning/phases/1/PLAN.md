@@ -29,6 +29,7 @@ npm install @pinecone-database/pinecone openai @anthropic-ai/sdk react-markdown 
 
 ### Task 1.3: Configure Tailwind Dark Theme
 **Action:** Edit `src/app/globals.css` — strip defaults, set dark background/text as base styles.
+**Design (ui-ux-pro-max):** Use `/ui-ux-pro-max` skill for minimal-dark style, pick a cohesive color palette and font pairing suitable for a chat app.
 ```css
 @tailwind base;
 @tailwind components;
@@ -67,6 +68,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
 ### Task 1.5: Create Chat Layout Skeleton (page.tsx)
 **Action:** Edit `src/app/page.tsx` — full-height flex layout with header, message area, input placeholder.
+**Design (ui-ux-pro-max):** Use `/ui-ux-pro-max` skill to design the chat layout with proper spacing, typography, and dark theme styling.
 ```tsx
 export default function Home() {
   return (
@@ -149,4 +151,12 @@ All tasks are sequential: 1.1 → 1.2 → 1.3 → 1.4 → 1.5 → 1.6 → 1.7 �
 npm run dev
 npm run build
 ```
-Both must succeed. Browser at localhost:3000 shows dark chat layout.
+Both must succeed.
+
+### Browser Verification (Playwright)
+After dev server is running, use Playwright MCP to:
+1. Navigate to `http://localhost:3000`
+2. Take a screenshot to verify dark theme renders
+3. Verify header "Pinecone RAG Chat" is visible
+4. Verify input field and Send button are present
+5. Verify layout looks correct (dark background, proper spacing)

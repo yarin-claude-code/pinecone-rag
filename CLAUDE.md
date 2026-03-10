@@ -45,6 +45,15 @@ src/
 - `npm run build` — production build
 - `npm run lint` — lint
 
+## Context7 Plugin
+- Use Context7 to fetch live docs before writing SDK code for: `@pinecone-database/pinecone`, `openai`, `@anthropic-ai/sdk`, `next` (App Router)
+- Resolve the library ID first (`resolve-library-id`), then query docs (`query-docs`) for the specific API you need
+
 ## Planning
 - GSD planning docs in `.planning/`
 - Atomic git commits per phase
+
+## Git Branching
+- Each phase gets its own branch: `phase/<N>-<short-name>` (e.g., `phase/2-rag-api-route`)
+- Branch from `master`, commit all phase work there, merge to `master` when phase is complete
+- Existing branches: `phase/1-project-scaffolding` (already merged to master)
