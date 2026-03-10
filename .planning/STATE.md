@@ -1,7 +1,7 @@
 # Project State — Pinecone RAG Chat
 
 ## Current Phase
-Phase 3 — Complete. Ready for Phase 4.
+Phase 4 — Complete. All phases done.
 
 ## Completed
 - [x] Project idea captured (PROJECT.md)
@@ -12,6 +12,7 @@ Phase 3 — Complete. Ready for Phase 4.
 - [x] Phase 1: Project scaffolding — Next.js 14, Tailwind dark theme, chat layout skeleton
 - [x] Phase 2: Backend RAG API route — openai/pinecone/anthropic lib helpers + /api/chat streaming endpoint
 - [x] Phase 3: Frontend chat UI — ChatMessage, ChatInput, IndexSelector components + streaming fetch + auto-scroll
+- [x] Phase 4: Polish & error handling — error UX, textarea input, responsive design, visual polish
 
 ## Decisions
 - Node.js runtime (not Edge) — needed for Pinecone SDK

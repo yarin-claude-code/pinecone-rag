@@ -62,7 +62,7 @@ export default function Home() {
         error instanceof Error ? error.message : "An error occurred";
       setMessages((prev) => [
         ...prev.slice(0, -1),
-        { role: "assistant", content: `Error: ${errorMsg}` },
+        { role: "assistant", content: `Error: ${errorMsg}`, isError: true },
       ]);
     } finally {
       setIsStreaming(false);
@@ -71,8 +71,8 @@ export default function Home() {
 
   return (
     <div className="flex flex-col h-screen max-w-3xl mx-auto">
-      <header className="flex items-center justify-between px-4 py-3 border-b border-[#2a2a2a]">
-        <h1 className="text-lg font-semibold tracking-tight">
+      <header className="flex items-center justify-between px-3 sm:px-4 py-3 border-b border-[#2a2a2a]">
+        <h1 className="text-base sm:text-lg font-semibold tracking-tight">
           Pinecone RAG Chat
         </h1>
         <IndexSelector
@@ -82,11 +82,17 @@ export default function Home() {
         />
       </header>
 
-      <main className="flex-1 overflow-y-auto p-4">
+      <main className="flex-1 overflow-y-auto p-3 sm:p-4">
         {messages.length === 0 ? (
-          <p className="text-[#525252] text-center mt-20 text-sm">
-            Ask a question to get started
-          </p>
+          <div className="text-center mt-20">
+            <div className="text-4xl mb-3">💬</div>
+            <p className="text-[#525252] text-sm">
+              Ask a question to get started
+            </p>
+            <p className="text-[#3a3a3a] text-xs mt-1">
+              Select an index above, then type your question below
+            </p>
+          </div>
         ) : (
           <>
             {messages.map((msg, i) => (
@@ -108,7 +114,7 @@ export default function Home() {
         <div ref={messagesEndRef} />
       </main>
 
-      <footer className="px-4 py-3 border-t border-[#2a2a2a]">
+      <footer className="px-3 sm:px-4 py-3 border-t border-[#2a2a2a]">
         <ChatInput onSend={handleSend} disabled={isStreaming} />
       </footer>
     </div>
