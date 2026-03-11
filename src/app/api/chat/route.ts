@@ -6,12 +6,37 @@ import { streamChatResponse } from "@/lib/openai";
 
 export const dynamic = "force-dynamic";
 
+const ALLOWED_INDEXES = ["devops-brain", "claude-brain"];
+const MAX_HISTORY_MESSAGES = 20;
+
 export async function POST(req: NextRequest) {
   try {
-    const { message, index, history } = (await req.json()) as ChatRequest;
+    const body = await req.json();
+    const { message, index, history } = body as ChatRequest;
+
+    // Input validation
+    if (!message || typeof message !== "string" || !message.trim()) {
+      return new Response(JSON.stringify({ error: "Message is required" }), {
+        status: 400,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+
+    if (!ALLOWED_INDEXES.includes(index)) {
+      return new Response(
+        JSON.stringify({ error: `Invalid index. Allowed: ${ALLOWED_INDEXES.join(", ")}` }),
+        { status: 400, headers: { "Content-Type": "application/json" } }
+      );
+    }
+
+    // Sanitize history: filter out error messages, cap length, extract only role+content
+    const sanitizedHistory = (Array.isArray(history) ? history : [])
+      .filter((m) => m.role && m.content && !m.isError)
+      .slice(-MAX_HISTORY_MESSAGES)
+      .map((m) => ({ role: m.role, content: m.content }));
 
     // 1. Embed the user message
-    const vector = await getEmbedding(message);
+    const vector = await getEmbedding(message.trim());
 
     // 2. Query Pinecone for relevant context
     const { texts: contextChunks, sources } = await queryIndex(index, vector);
@@ -29,22 +54,29 @@ If the context does not contain enough information to answer the question, respo
 Context:
 ${context}`;
 
-    // 4. Stream GPT response, then append sources as JSON trailer
+    // 4. Stream response with abort signal support
+    const abortSignal = req.signal;
     const encoder = new TextEncoder();
     const stream = new ReadableStream({
       async start(controller) {
         try {
+          if (abortSignal.aborted) {
+            controller.close();
+            return;
+          }
+
           const messages = [
-            ...history.map((m) => ({ role: m.role, content: m.content })),
-            { role: "user" as const, content: message },
+            ...sanitizedHistory,
+            { role: "user" as const, content: message.trim() },
           ];
 
           await streamChatResponse(systemPrompt, messages, (text) => {
+            if (abortSignal.aborted) return;
             controller.enqueue(encoder.encode(text));
           });
 
           // Append sources as a JSON trailer separated by a delimiter
-          if (sources.length > 0) {
+          if (sources.length > 0 && !abortSignal.aborted) {
             controller.enqueue(
               encoder.encode(`\n<!--SOURCES:${JSON.stringify(sources)}-->`)
             );
@@ -52,6 +84,10 @@ ${context}`;
 
           controller.close();
         } catch (error) {
+          if (abortSignal.aborted) {
+            controller.close();
+            return;
+          }
           const errorMessage =
             error instanceof Error ? error.message : "An error occurred";
           controller.enqueue(

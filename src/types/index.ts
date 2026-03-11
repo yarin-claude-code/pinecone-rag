@@ -18,6 +18,15 @@ export interface ChatRequest {
   history: Message[];
 }
 
+export interface Conversation {
+  id: string;
+  title: string;
+  index: string;
+  messages: Message[];
+  createdAt: number;
+  updatedAt: number;
+}
+
 export interface PineconeMetadata extends Record<string, string> {
   text: string;
   source: string;

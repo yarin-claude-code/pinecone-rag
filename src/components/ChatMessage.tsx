@@ -11,12 +11,12 @@ interface ChatMessageProps {
 
 export default function ChatMessage({ message }: ChatMessageProps) {
   const isUser = message.role === "user";
-  const [copiedIndex, setCopiedIndex] = useState<"content" | null>(null);
+  const [copied, setCopied] = useState(false);
 
   function copyContent() {
     navigator.clipboard.writeText(message.content);
-    setCopiedIndex("content");
-    setTimeout(() => setCopiedIndex(null), 2000);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
   }
 
   if (isUser) {
@@ -92,37 +92,26 @@ export default function ChatMessage({ message }: ChatMessageProps) {
           </div>
         )}
 
-        {/* Action buttons */}
+        {/* Action buttons — only copy (functional) */}
         {!message.isError && message.content && (
           <div className="flex items-center gap-3">
-            <div className="flex items-center gap-1">
-              <button className="p-1.5 rounded-md text-[#555577] hover:text-[#8888aa] hover:bg-[#1a1d35] transition-colors" aria-label="Thumbs up">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3" />
+            <button
+              onClick={copyContent}
+              className="p-1.5 rounded-md text-[#555577] hover:text-[#8888aa] hover:bg-[#1a1d35] transition-colors"
+              aria-label="Copy"
+              title="Copy to clipboard"
+            >
+              {copied ? (
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6c5ce7" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="20 6 9 17 4 12" />
                 </svg>
-              </button>
-              <button className="p-1.5 rounded-md text-[#555577] hover:text-[#8888aa] hover:bg-[#1a1d35] transition-colors" aria-label="Thumbs down">
+              ) : (
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3zm7-13h2.67A2.31 2.31 0 0 1 22 4v7a2.31 2.31 0 0 1-2.33 2H17" />
+                  <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+                  <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
                 </svg>
-              </button>
-              <button
-                onClick={copyContent}
-                className="p-1.5 rounded-md text-[#555577] hover:text-[#8888aa] hover:bg-[#1a1d35] transition-colors"
-                aria-label="Copy"
-              >
-                {copiedIndex === "content" ? (
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6c5ce7" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <polyline points="20 6 9 17 4 12" />
-                  </svg>
-                ) : (
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
-                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
-                  </svg>
-                )}
-              </button>
-            </div>
+              )}
+            </button>
             {message.generationTime && (
               <span className="text-[10px] text-[#444466] ml-auto">
                 Generation {message.generationTime.toFixed(1)}s
