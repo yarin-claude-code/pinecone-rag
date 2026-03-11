@@ -1,7 +1,7 @@
 # Project State — Pinecone RAG Chat
 
 ## Current Phase
-Phase 5 — Frontend Design Refactor — Not started.
+Phase 6 — GitHub Actions CI — Complete.
 
 ## Completed
 - [x] Project idea captured (PROJECT.md)
@@ -13,6 +13,8 @@ Phase 5 — Frontend Design Refactor — Not started.
 - [x] Phase 2: Backend RAG API route — openai/pinecone/anthropic lib helpers + /api/chat streaming endpoint
 - [x] Phase 3: Frontend chat UI — ChatMessage, ChatInput, IndexSelector components + streaming fetch + auto-scroll
 - [x] Phase 4: Polish & error handling — error UX, textarea input, responsive design, visual polish
+- [x] Phase 5: Frontend Design Refactor — RAG Nexus dark UI with sidebar, source cards, polished input bar
+- [x] Phase 6: GitHub Actions CI — lint, type-check, build on push/PR to master
 
 ## Decisions
 - Node.js runtime (not Edge) — needed for Pinecone SDK

@@ -75,3 +75,18 @@
 8. Overall visual polish — spacing, typography, colors to match reference design
 
 **Success:** UI closely matches the RAG Nexus reference design with sidebar, source cards, and polished dark theme.
+
+---
+
+## Phase 6: GitHub Actions CI
+**Goal:** Automated CI pipeline that runs lint, type-check, and build on every push and PR.
+
+**Tasks:**
+1. Create `.github/workflows/ci.yml` with GitHub Actions workflow
+2. Run `npm run lint` step
+3. Run `npx tsc --noEmit` type-check step
+4. Run `npm run build` production build step
+5. Configure workflow to trigger on push to `master` and on pull requests
+6. Cache `node_modules` for faster CI runs
+
+**Success:** Every push and PR triggers CI that catches lint errors, type errors, and build failures.
