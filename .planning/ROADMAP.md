@@ -58,3 +58,20 @@
 6. Final visual polish — spacing, typography, transitions
 
 **Success:** App handles all error cases gracefully, looks good on mobile and desktop.
+
+---
+
+## Phase 5: Frontend Design Refactor
+**Goal:** Redesign the frontend to match the RAG Nexus reference design — left sidebar with navigation, polished chat layout with source cards, refined input bar, and overall premium dark UI.
+
+**Tasks:**
+1. Add left sidebar with app branding ("RAG Nexus" style), "New Exploration" button, workspace nav (Knowledge Base, History), and Settings link
+2. Redesign chat header — show current index/conversation name + model badge
+3. Restyle user message bubbles (right-aligned, purple/blue) and assistant bubbles (left-aligned with avatar, dark card)
+4. Add "Sources & Context" section below assistant messages — source cards with file name, details, and relevance score badges
+5. Add response action buttons (thumbs up/down, copy) and generation time indicator
+6. Redesign input bar — rounded pill style with attachment icon, mic icon, and colored send arrow
+7. Add footer disclaimer text below input
+8. Overall visual polish — spacing, typography, colors to match reference design
+
+**Success:** UI closely matches the RAG Nexus reference design with sidebar, source cards, and polished dark theme.

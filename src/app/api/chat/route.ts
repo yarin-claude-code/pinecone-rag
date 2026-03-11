@@ -14,7 +14,7 @@ export async function POST(req: NextRequest) {
     const vector = await getEmbedding(message);
 
     // 2. Query Pinecone for relevant context
-    const contextChunks = await queryIndex(index, vector);
+    const { texts: contextChunks, sources } = await queryIndex(index, vector);
 
     // 3. Build system prompt with context
     const context =
@@ -27,19 +27,26 @@ export async function POST(req: NextRequest) {
 Context:
 ${context}`;
 
-    // 4. Stream Claude response
+    // 4. Stream Claude response, then append sources as JSON trailer
     const encoder = new TextEncoder();
     const stream = new ReadableStream({
       async start(controller) {
         try {
           const messages = [
-            ...history,
+            ...history.map((m) => ({ role: m.role, content: m.content })),
             { role: "user" as const, content: message },
           ];
 
           await streamChatResponse(systemPrompt, messages, (text) => {
             controller.enqueue(encoder.encode(text));
           });
+
+          // Append sources as a JSON trailer separated by a delimiter
+          if (sources.length > 0) {
+            controller.enqueue(
+              encoder.encode(`\n<!--SOURCES:${JSON.stringify(sources)}-->`)
+            );
+          }
 
           controller.close();
         } catch (error) {

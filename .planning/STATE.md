@@ -1,13 +1,13 @@
 # Project State — Pinecone RAG Chat
 
 ## Current Phase
-Phase 4 — Complete. All phases done.
+Phase 5 — Frontend Design Refactor — Not started.
 
 ## Completed
 - [x] Project idea captured (PROJECT.md)
 - [x] Research: Pinecone SDK v7, OpenAI embeddings, Anthropic streaming, Next.js streaming
 - [x] Requirements defined (REQUIREMENTS.md)
-- [x] Roadmap created (ROADMAP.md) — 4 phases
+- [x] Roadmap created (ROADMAP.md) — 5 phases
 - [x] CLAUDE.md created
 - [x] Phase 1: Project scaffolding — Next.js 14, Tailwind dark theme, chat layout skeleton
 - [x] Phase 2: Backend RAG API route — openai/pinecone/anthropic lib helpers + /api/chat streaming endpoint
