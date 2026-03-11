@@ -90,3 +90,18 @@
 6. Cache `node_modules` for faster CI runs
 
 **Success:** Every push and PR triggers CI that catches lint errors, type errors, and build failures.
+
+---
+
+## Phase 7: Production Deployment Pipeline
+**Goal:** Remove Anthropic dependency, switch to GPT-4o-mini, Dockerize app, extend CI/CD to auto-deploy to Hostinger VPS.
+
+**Tasks:**
+1. Switch LLM from Anthropic Claude to OpenAI GPT-4o-mini
+2. Update system prompt — answer only from context, no web search
+3. Create multi-stage Dockerfile + .dockerignore
+4. Extend CI/CD pipeline with SSH deploy job to VPS
+5. Set up GitHub Secrets (VPS_HOST, VPS_USER, VPS_SSH_KEY)
+6. Initial VPS setup — clone repo, create .env.local, test end-to-end
+
+**Success:** Push to master triggers CI → deploy to VPS. App runs at VPS IP on port 3000.

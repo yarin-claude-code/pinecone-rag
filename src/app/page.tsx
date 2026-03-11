@@ -104,7 +104,7 @@ export default function Home() {
               {index === "devops-brain" ? "DevOps Knowledge Base" : "Claude Knowledge Base"}
             </h1>
             <span className="text-[10px] font-medium text-[#6c5ce7] bg-[#6c5ce7]/10 border border-[#6c5ce7]/20 px-2 py-0.5 rounded-full uppercase tracking-wide">
-              Claude Sonnet
+              GPT-4o mini
             </span>
           </div>
           <div className="flex items-center gap-3">

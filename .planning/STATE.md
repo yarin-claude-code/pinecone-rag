@@ -1,7 +1,7 @@
 # Project State — Pinecone RAG Chat
 
 ## Current Phase
-Phase 6 — GitHub Actions CI — Complete.
+Phase 7 — Production Deployment Pipeline — In Progress (Tasks 1-3 done, Task 4 deferred to future session).
 
 ## Completed
 - [x] Project idea captured (PROJECT.md)

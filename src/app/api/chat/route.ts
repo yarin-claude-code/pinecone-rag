@@ -2,7 +2,7 @@ import { NextRequest } from "next/server";
 import { ChatRequest } from "@/types";
 import { getEmbedding } from "@/lib/openai";
 import { queryIndex } from "@/lib/pinecone";
-import { streamChatResponse } from "@/lib/anthropic";
+import { streamChatResponse } from "@/lib/openai";
 
 export const dynamic = "force-dynamic";
 
@@ -22,12 +22,14 @@ export async function POST(req: NextRequest) {
         ? contextChunks.map((chunk, i) => `[${i + 1}] ${chunk}`).join("\n\n")
         : "No relevant context found.";
 
-    const systemPrompt = `You are a helpful assistant. Answer questions using the provided context. If the context doesn't contain relevant information, say so and answer based on your general knowledge.
+    const systemPrompt = `You are a friendly knowledge base assistant. Answer questions ONLY using the provided context below. Do NOT use any outside knowledge or search the web.
+
+If the context does not contain enough information to answer the question, respond with a kind message like: "I couldn't find anything about that in the knowledge base. Try rephrasing your question or searching for a different topic — I'm here to help!"
 
 Context:
 ${context}`;
 
-    // 4. Stream Claude response, then append sources as JSON trailer
+    // 4. Stream GPT response, then append sources as JSON trailer
     const encoder = new TextEncoder();
     const stream = new ReadableStream({
       async start(controller) {

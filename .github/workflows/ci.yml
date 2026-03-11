@@ -1,4 +1,4 @@
-name: CI
+name: CI & Deploy
 
 on:
   push:
@@ -31,4 +31,31 @@ jobs:
         env:
           OPENAI_API_KEY: stub
           PINECONE_API_KEY: stub
-          ANTHROPIC_API_KEY: stub
+
+  deploy:
+    needs: ci
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/master' && github.event_name == 'push'
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Deploy to VPS
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          script: |
+            cd ~/pinecone-rag
+            git pull origin master
+            docker build -t rag-nexus .
+            docker stop rag-nexus || true
+            docker rm rag-nexus || true
+            docker run -d \
+              --name rag-nexus \
+              --restart unless-stopped \
+              -p 3000:3000 \
+              --env-file .env.local \
+              rag-nexus
+            docker image prune -f
