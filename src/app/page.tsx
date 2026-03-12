@@ -1,14 +1,18 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
-import { Message, Source } from "@/types";
+import { useState, useRef, useEffect, useCallback } from "react";
+import { Message, Source, Conversation } from "@/types";
 import ChatMessage from "@/components/ChatMessage";
 import ChatInput from "@/components/ChatInput";
 import IndexSelector from "@/components/IndexSelector";
 import Sidebar from "@/components/Sidebar";
 
+function generateId(): string {
+  return Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+}
+
 function parseSources(text: string): { content: string; sources: Source[] } {
-  const match = text.match(/\n<!--SOURCES:(.*?)-->$/);
+  const match = text.match(/\n<!--SOURCES:([\s\S]*?)-->$/);
   if (!match) return { content: text, sources: [] };
   try {
     const sources = JSON.parse(match[1]) as Source[];
@@ -18,29 +22,122 @@ function parseSources(text: string): { content: string; sources: Source[] } {
   }
 }
 
+function loadConversations(): Conversation[] {
+  try {
+    const stored = localStorage.getItem("rag-nexus-conversations");
+    return stored ? JSON.parse(stored) : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveConversations(conversations: Conversation[]) {
+  try {
+    localStorage.setItem("rag-nexus-conversations", JSON.stringify(conversations));
+  } catch {
+    // Storage full or unavailable
+  }
+}
+
 export default function Home() {
+  const [conversations, setConversations] = useState<Conversation[]>([]);
+  const [activeConversationId, setActiveConversationId] = useState<string | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [index, setIndex] = useState("devops-brain");
   const [isStreaming, setIsStreaming] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const abortControllerRef = useRef<AbortController | null>(null);
+
+  // Load conversations from localStorage on mount
+  useEffect(() => {
+    const saved = loadConversations();
+    setConversations(saved);
+  }, []);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
+  // Save current conversation to localStorage whenever messages change
+  const saveCurrentConversation = useCallback(
+    (msgs: Message[]) => {
+      if (msgs.length === 0) return;
+
+      setConversations((prev) => {
+        let updated: Conversation[];
+        if (activeConversationId) {
+          updated = prev.map((c) =>
+            c.id === activeConversationId
+              ? { ...c, messages: msgs, updatedAt: Date.now() }
+              : c
+          );
+        } else {
+          const newConvo: Conversation = {
+            id: generateId(),
+            title: msgs[0].content.slice(0, 50) + (msgs[0].content.length > 50 ? "..." : ""),
+            index,
+            messages: msgs,
+            createdAt: Date.now(),
+            updatedAt: Date.now(),
+          };
+          updated = [newConvo, ...prev];
+          setActiveConversationId(newConvo.id);
+        }
+        saveConversations(updated);
+        return updated;
+      });
+    },
+    [activeConversationId, index]
+  );
+
   function handleNewChat() {
-    if (!isStreaming) setMessages([]);
+    if (isStreaming) return;
+    setMessages([]);
+    setActiveConversationId(null);
+  }
+
+  function handleSelectConversation(id: string) {
+    if (isStreaming) return;
+    const convo = conversations.find((c) => c.id === id);
+    if (convo) {
+      setMessages(convo.messages);
+      setIndex(convo.index);
+      setActiveConversationId(id);
+    }
+  }
+
+  function handleDeleteConversation(id: string) {
+    if (isStreaming) return;
+    setConversations((prev) => {
+      const updated = prev.filter((c) => c.id !== id);
+      saveConversations(updated);
+      return updated;
+    });
+    if (activeConversationId === id) {
+      setMessages([]);
+      setActiveConversationId(null);
+    }
+  }
+
+  function handleCancelStream() {
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+      abortControllerRef.current = null;
+    }
   }
 
   async function handleSend(content: string) {
     const userMessage: Message = { role: "user", content };
-    setMessages((prev) => [...prev, userMessage]);
+    const newMessages = [...messages, userMessage];
+    setMessages(newMessages);
     setIsStreaming(true);
 
     // Add empty assistant message for streaming
     setMessages((prev) => [...prev, { role: "assistant", content: "" }]);
 
     const startTime = Date.now();
+    const abortController = new AbortController();
+    abortControllerRef.current = abortController;
 
     try {
       const res = await fetch("/api/chat", {
@@ -49,8 +146,9 @@ export default function Home() {
         body: JSON.stringify({
           message: content,
           index,
-          history: messages,
+          history: messages.filter((m) => !m.isError),
         }),
+        signal: abortController.signal,
       });
 
       if (!res.ok) {
@@ -63,6 +161,7 @@ export default function Home() {
 
       const decoder = new TextDecoder();
       let accumulated = "";
+      let finalMessages: Message[] = [];
 
       while (true) {
         const { done, value } = await reader.read();
@@ -70,31 +169,69 @@ export default function Home() {
         accumulated += decoder.decode(value, { stream: true });
         const { content: displayText, sources } = parseSources(accumulated);
         const genTime = (Date.now() - startTime) / 1000;
-        setMessages((prev) => [
-          ...prev.slice(0, -1),
-          {
-            role: "assistant",
-            content: displayText,
-            sources: sources.length > 0 ? sources : undefined,
-            generationTime: genTime,
-          },
-        ]);
+        const updatedMsg: Message = {
+          role: "assistant",
+          content: displayText,
+          sources: sources.length > 0 ? sources : undefined,
+          generationTime: genTime,
+        };
+        setMessages((prev) => {
+          finalMessages = [...prev.slice(0, -1), updatedMsg];
+          return finalMessages;
+        });
+      }
+
+      // Save after streaming completes
+      if (finalMessages.length > 0) {
+        saveCurrentConversation(finalMessages);
       }
     } catch (error) {
-      const errorMsg =
-        error instanceof Error ? error.message : "An error occurred";
-      setMessages((prev) => [
-        ...prev.slice(0, -1),
-        { role: "assistant", content: `Error: ${errorMsg}`, isError: true },
-      ]);
+      if (error instanceof DOMException && error.name === "AbortError") {
+        // User cancelled — keep whatever was streamed so far
+        setMessages((prev) => {
+          const last = prev[prev.length - 1];
+          if (last && last.role === "assistant" && !last.content) {
+            // Nothing was streamed, remove empty placeholder
+            const cleaned = prev.slice(0, -1);
+            if (cleaned.length > 0) saveCurrentConversation(cleaned);
+            return cleaned;
+          }
+          const genTime = (Date.now() - startTime) / 1000;
+          const final = [
+            ...prev.slice(0, -1),
+            { ...last, generationTime: genTime },
+          ];
+          saveCurrentConversation(final);
+          return final;
+        });
+      } else {
+        const errorMsg =
+          error instanceof Error ? error.message : "An error occurred";
+        setMessages((prev) => {
+          const final = [
+            ...prev.slice(0, -1),
+            { role: "assistant" as const, content: `Error: ${errorMsg}`, isError: true },
+          ];
+          saveCurrentConversation(final);
+          return final;
+        });
+      }
     } finally {
       setIsStreaming(false);
+      abortControllerRef.current = null;
     }
   }
 
   return (
     <div className="flex h-screen bg-[#0d0f1a]">
-      <Sidebar onNewChat={handleNewChat} currentIndex={index} />
+      <Sidebar
+        onNewChat={handleNewChat}
+        currentIndex={index}
+        conversations={conversations}
+        activeConversationId={activeConversationId}
+        onSelectConversation={handleSelectConversation}
+        onDeleteConversation={handleDeleteConversation}
+      />
 
       <div className="flex flex-col flex-1 min-w-0">
         {/* Header */}
@@ -163,7 +300,12 @@ export default function Home() {
         {/* Input */}
         <footer className="px-4 sm:px-6 py-4 border-t border-[#1e2044]">
           <div className="max-w-3xl mx-auto">
-            <ChatInput onSend={handleSend} disabled={isStreaming} />
+            <ChatInput
+              onSend={handleSend}
+              onCancel={handleCancelStream}
+              disabled={isStreaming}
+              isStreaming={isStreaming}
+            />
           </div>
         </footer>
       </div>

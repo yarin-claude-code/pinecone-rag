@@ -1,14 +1,26 @@
 "use client";
 
 import { useState } from "react";
+import { Conversation } from "@/types";
 
 interface SidebarProps {
   onNewChat: () => void;
   currentIndex: string;
+  conversations: Conversation[];
+  activeConversationId: string | null;
+  onSelectConversation: (id: string) => void;
+  onDeleteConversation: (id: string) => void;
 }
 
-export default function Sidebar({ onNewChat, currentIndex }: SidebarProps) {
-  const [collapsed, setCollapsed] = useState(false);
+export default function Sidebar({
+  onNewChat,
+  currentIndex,
+  conversations,
+  activeConversationId,
+  onSelectConversation,
+  onDeleteConversation,
+}: SidebarProps) {
+  const [collapsed, setCollapsed] = useState(true);
 
   return (
     <>
@@ -66,46 +78,55 @@ export default function Sidebar({ onNewChat, currentIndex }: SidebarProps) {
           </button>
         </div>
 
-        {/* Workspace nav */}
-        <div className="px-4 mb-2">
-          <div className="text-[10px] font-semibold text-[#555577] tracking-widest uppercase mb-2">Workspace</div>
-          <nav className="space-y-1">
-            <a href="#" className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-[#8888aa] hover:bg-[#1a1d35] hover:text-[#e5e5e5] transition-colors">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
-                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
-              </svg>
-              Knowledge Base
-            </a>
-            <a href="#" className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-[#8888aa] hover:bg-[#1a1d35] hover:text-[#e5e5e5] transition-colors">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="12" cy="12" r="10" />
-                <polyline points="12 6 12 12 16 14" />
-              </svg>
-              History
-            </a>
-          </nav>
+        {/* Conversation history */}
+        <div className="px-4 mb-2 flex-1 overflow-y-auto min-h-0">
+          <div className="text-[10px] font-semibold text-[#555577] tracking-widest uppercase mb-2">History</div>
+          {conversations.length === 0 ? (
+            <p className="text-[11px] text-[#444466] px-2">No conversations yet</p>
+          ) : (
+            <nav className="space-y-0.5">
+              {conversations.map((convo) => (
+                <div
+                  key={convo.id}
+                  className={`group flex items-center gap-1 rounded-lg text-sm cursor-pointer transition-colors ${
+                    activeConversationId === convo.id
+                      ? "bg-[#1a1d35] text-[#e5e5e5]"
+                      : "text-[#8888aa] hover:bg-[#1a1d35] hover:text-[#e5e5e5]"
+                  }`}
+                >
+                  <button
+                    onClick={() => {
+                      onSelectConversation(convo.id);
+                      setCollapsed(true);
+                    }}
+                    className="flex-1 text-left px-3 py-2 truncate text-xs"
+                    title={convo.title}
+                  >
+                    {convo.title}
+                  </button>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onDeleteConversation(convo.id);
+                    }}
+                    className="p-1.5 rounded-md text-[#555577] hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity shrink-0 mr-1"
+                    aria-label="Delete conversation"
+                  >
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M18 6L6 18M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
+              ))}
+            </nav>
+          )}
         </div>
-
-        {/* Spacer */}
-        <div className="flex-1" />
 
         {/* Current index indicator */}
         <div className="px-4 mb-2">
           <div className="px-3 py-2 rounded-lg bg-[#1a1d35] text-xs text-[#8888aa]">
             <span className="text-[#555577]">Index:</span> <span className="text-[#6c5ce7]">{currentIndex}</span>
           </div>
-        </div>
-
-        {/* Settings */}
-        <div className="px-4 pb-5">
-          <a href="#" className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-[#8888aa] hover:bg-[#1a1d35] hover:text-[#e5e5e5] transition-colors">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <circle cx="12" cy="12" r="3" />
-              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
-            </svg>
-            Settings
-          </a>
         </div>
       </aside>
     </>

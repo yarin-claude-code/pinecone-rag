@@ -8,8 +8,8 @@ RAG chat web app — queries Pinecone vector indexes with OpenAI embeddings, str
 - TailwindCSS (minimal dark theme)
 - Pinecone SDK (@pinecone-database/pinecone) — standard indexes, NOT integrated
 - OpenAI SDK — text-embedding-3-small (1536 dims) for embeddings only
-- Anthropic SDK — Claude claude-sonnet-4-6 for LLM responses (streaming)
-- react-markdown + remark-gfm for rendering
+- OpenAI SDK — GPT-4o-mini for LLM responses (streaming)
+- react-markdown + remark-gfm + @tailwindcss/typography for rendering
 
 ## Project Structure
 ```
@@ -23,19 +23,18 @@ src/
         route.ts      — POST handler: embed → query Pinecone → stream Claude
   components/
     ChatMessage.tsx   — single message bubble (user/assistant) with sources & actions
-    ChatInput.tsx     — pill-shaped input with attachment, mic, send icons
+    ChatInput.tsx     — pill-shaped input with send/cancel buttons
     IndexSelector.tsx — dropdown for index selection
-    Sidebar.tsx       — left sidebar with branding, nav, settings
+    Sidebar.tsx       — left sidebar with branding, conversation history
   lib/
     pinecone.ts       — Pinecone client + query helper
-    openai.ts         — OpenAI embedding helper
-    anthropic.ts      — Anthropic streaming helper
+    openai.ts         — OpenAI embedding + GPT-4o-mini streaming helper
   types/
     index.ts          — shared TypeScript types
 ```
 
 ## Key Conventions
-- All API keys via env vars: `OPENAI_API_KEY`, `PINECONE_API_KEY`, `ANTHROPIC_API_KEY`
+- All API keys via env vars: `OPENAI_API_KEY`, `PINECONE_API_KEY`
 - Pinecone indexes: `devops-brain`, `claude-brain` — metadata schema: `{ text: string, source: string }`
 - API route: `POST /api/chat` — accepts `{ message, index, history }`, returns streaming response
 - No unnecessary abstractions — simple, readable code
@@ -85,3 +84,17 @@ Never commit phase work directly to `master`. Never skip the planning folder or 
   4. Delete `.playwright-mcp/` directory from project root
   5. Kill port 3000
 - This is non-negotiable — every phase must be visually verified before committing
+
+## PR Review Routine (MANDATORY for every PR)
+When opening a PR, always perform a self-review before requesting merge:
+1. **Create the PR** with a summary, bullet points of changes, and a test plan checklist
+2. **Add a review comment** covering:
+   - Security implications of the changes
+   - Bug fix correctness
+   - Architecture notes and trade-offs
+   - Potential follow-ups or tech debt introduced
+3. **Add inline comments** on:
+   - Any hardcoded values that should be configurable
+   - Complex logic that warrants explanation
+   - Patterns that could be improved in future iterations
+4. **Never merge without review** — the PR must have at least one review comment before merging

@@ -19,6 +19,7 @@ export async function streamChatResponse(
   const stream = await openai.chat.completions.create({
     model: "gpt-4o-mini",
     stream: true,
+    max_tokens: 2048,
     messages: [
       { role: "system", content: systemPrompt },
       ...messages.map((m) => ({ role: m.role as "user" | "assistant", content: m.content })),
