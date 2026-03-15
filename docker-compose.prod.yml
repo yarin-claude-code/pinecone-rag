@@ -1,0 +1,26 @@
+services:
+  app:
+    image: ghcr.io/yarin-claude-code/pinecone-rag:master
+    container_name: pinecone-rag
+    restart: unless-stopped
+    env_file: .env.local
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.rag.rule=Host(`rag.srv1030125.hstgr.cloud`)
+      - traefik.http.routers.rag.entrypoints=web,websecure
+      - traefik.http.routers.rag.tls=true
+      - traefik.http.routers.rag.tls.certresolver=mytlschallenge
+      - traefik.http.services.rag.loadbalancer.server.port=3000
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://localhost:3000').then(r => { if (!r.ok) process.exit(1) })"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+    networks:
+      - traefik
+
+networks:
+  traefik:
+    external: true
+    name: root_default
