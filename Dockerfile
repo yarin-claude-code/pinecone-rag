@@ -10,6 +10,9 @@ WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm ci
 COPY . .
+# Stub API keys at build time — Next.js page collection requires them
+ENV OPENAI_API_KEY=stub
+ENV PINECONE_API_KEY=stub
 RUN npm run build
 
 # Stage 3: Production
