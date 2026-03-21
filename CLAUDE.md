@@ -11,27 +11,13 @@ RAG chat web app — queries Pinecone vector indexes with OpenAI embeddings, str
 - OpenAI SDK — GPT-4o-mini for LLM responses (streaming)
 - react-markdown + remark-gfm + @tailwindcss/typography for rendering
 
-## Project Structure
-```
-src/
-  app/
-    page.tsx          — main chat UI
-    layout.tsx        — root layout
-    globals.css       — Tailwind + global styles
-    api/
-      chat/
-        route.ts      — POST handler: embed → query Pinecone → stream Claude
-  components/
-    ChatMessage.tsx   — single message bubble (user/assistant) with sources & actions
-    ChatInput.tsx     — pill-shaped input with send/cancel buttons
-    IndexSelector.tsx — dropdown for index selection
-    Sidebar.tsx       — left sidebar with branding, conversation history
-  lib/
-    pinecone.ts       — Pinecone client + query helper
-    openai.ts         — OpenAI embedding + GPT-4o-mini streaming helper
-  types/
-    index.ts          — shared TypeScript types
-```
+## Deep Docs (ClaudeVault)
+
+For detailed project structure, architecture, data flow, and code explanations, see:
+- `ClaudeVault/Projects/pinecone-rag/CODE_EXPLANATION.md`
+- `ClaudeVault/Projects/pinecone-rag/CURRENT_STATE.md`
+
+Configured via `.claude/rules/vault-knowledge.md`.
 
 ## Key Conventions
 - All API keys via env vars: `OPENAI_API_KEY`, `PINECONE_API_KEY`
@@ -55,18 +41,18 @@ src/
 
 ## Git Branching
 - Each phase gets its own branch: `phase/<N>-<short-name>` (e.g., `phase/2-rag-api-route`)
-- Branch from `master`, commit all phase work there, merge to `master` when phase is complete
-- Existing branches: `phase/1-project-scaffolding` (already merged to master)
+- Branch from `main`, commit all phase work there, merge to `main` when phase is complete
+- Existing branches: `phase/1-project-scaffolding` (already merged to main)
 
 ## Phase Checklist (MANDATORY for every phase)
 Before writing any code for a phase, complete these steps IN ORDER:
 1. **Create planning folder:** `.planning/phases/<N>/PLAN.md` with goal, success criteria, tasks, execution order
-2. **Create branch:** `git checkout -b phase/<N>-<short-name>` from `master`
+2. **Create branch:** `git checkout -b phase/<N>-<short-name>` from `main`
 3. **Write code** on that branch
 4. **Commit** all work (code + planning docs + STATE.md update) on the phase branch
-5. **Merge** to `master` when phase is complete
+5. **Merge** to `main` when phase is complete
 
-Never commit phase work directly to `master`. Never skip the planning folder or branch creation.
+Never commit phase work directly to `main`. Never skip the planning folder or branch creation.
 
 ## Dev Server
 - Before starting `npm run dev`, kill any existing process on port 3000 first: `lsof -ti:3000 | xargs kill -9 2>/dev/null || true`
@@ -77,12 +63,10 @@ Never commit phase work directly to `master`. Never skip the planning folder or 
 - Never leave orphaned processes running on any port
 
 ## Playwright Verification (MANDATORY for every phase)
-- Before considering any phase complete, **run Playwright visual verification**:
+- Before considering any phase complete, **run Playwright visual verification** using `playwright-cli`:
   1. Start dev server on port 3000
-  2. Navigate to localhost:3000, screenshot key states (empty, mobile, error, etc.)
-  3. Close browser using `browser_close`
-  4. Delete `.playwright-mcp/` directory from project root
-  5. Kill port 3000
+  2. Screenshot key states (empty, mobile, error, etc.) via CLI
+  3. Kill port 3000
 - This is non-negotiable — every phase must be visually verified before committing
 
 ## PR Review Routine (MANDATORY for every PR)
