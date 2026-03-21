@@ -1,0 +1,4 @@
+# GHSA-h25m-26qc-wcjf: Next.js HTTP request deserialization DoS
+# Fix requires Next.js 15.0.8+ (major version upgrade needed)
+# Tracked for resolution when upgrading to Next.js 15
+GHSA-h25m-26qc-wcjf
